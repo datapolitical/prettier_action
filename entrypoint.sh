@@ -93,8 +93,8 @@ if _git_changed; then
   if $INPUT_DRY; then
     echo "Unpretty Files Changes:"
     _git_changes
-    echo "Finishing dry-run. Exiting before committing."
-    exit 1
+    echo "Finishing dry-run. Some files have been changed. Commit the changes if you want to keep them."
+    exit 0
   else
     # Calling method to configure the git environemnt
     _git_setup
