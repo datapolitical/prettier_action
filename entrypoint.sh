@@ -81,12 +81,6 @@ else
   echo "No node_modules/ folder."
 fi
 
-if [ -f 'package-lock.json' ]; then
-  git checkout -- package-lock.json
-else
-  echo "No package-lock.json file."
-fi
-
 # To keep runtime good, just continue if something was changed
 if _git_changed; then
   # case when --write is used with dry-run so if something is unpretty there will always have _git_changed
@@ -96,38 +90,7 @@ if _git_changed; then
     echo "Finishing dry-run. Some files have been changed. Commit the changes if you want to keep them."
     exit 0
   else
-    # Calling method to configure the git environemnt
-    _git_setup
-
-    if $INPUT_ONLY_CHANGED; then
-      # --diff-filter=d excludes deleted files
-      OLDIFS="$IFS"
-      IFS=$'\n'
-      for file in $(git diff --name-only --diff-filter=d HEAD^..HEAD)
-      do
-        git add "$file"
-      done
-      IFS="$OLDIFS"
-    else
-      # Add changes to git
-      git add "${INPUT_FILE_PATTERN}" || echo "Problem adding your files with pattern ${INPUT_FILE_PATTERN}"
-    fi
-
-    # Commit and push changes back
-    if $INPUT_SAME_COMMIT; then
-      echo "Amending the current commit..."
-      git pull
-      git commit --amend --no-edit
-      git push origin -f
-    else
-      if [ "$INPUT_COMMIT_DESCRIPTION" != "" ]; then
-          git commit -m "$INPUT_COMMIT_MESSAGE" -m "$INPUT_COMMIT_DESCRIPTION" --author="$GITHUB_ACTOR <$GITHUB_ACTOR@users.noreply.github.com>" ${INPUT_COMMIT_OPTIONS:+"$INPUT_COMMIT_OPTIONS"} || echo "No files added to commit"
-      else
-          git commit -m "$INPUT_COMMIT_MESSAGE" --author="$GITHUB_ACTOR <$GITHUB_ACTOR@users.noreply.github.com>" ${INPUT_COMMIT_OPTIONS:+"$INPUT_COMMIT_OPTIONS"} || echo "No files added to commit"
-      fi
-      git push origin ${INPUT_PUSH_OPTIONS:-}
-    fi
-    echo "Changes pushed successfully."
+    echo "This should only be run in dry mode"
   fi
 else
   # case when --check is used so there will never have something to commit but there are unpretty files
@@ -137,6 +100,5 @@ else
   else
     echo "Finishing dry-run."
   fi
-  echo "No unpretty files!"
-  echo "Nothing to commit. Exiting."
+  echo "No unpretty files! Exiting."
 fi
